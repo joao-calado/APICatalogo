@@ -17,6 +17,16 @@ public class ProdutosController : ControllerBase
         _context = context;
     }
 
+    [HttpGet("primeiro")]
+    public ActionResult<Produto> GetPrimeiro()
+    {
+        var produto = _context.Produtos.AsNoTracking().FirstOrDefault();
+
+        if (produto is null) return NotFound("Produtos não encontrados...");
+
+        return produto;
+    }
+
     [HttpGet]
     public ActionResult<IEnumerable<Produto>> Get()
     {
