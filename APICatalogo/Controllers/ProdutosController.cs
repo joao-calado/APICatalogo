@@ -61,9 +61,9 @@ public class ProdutosController : ControllerBase
     }
 
     [HttpGet]
-    public ActionResult<IEnumerable<Produto>> Get()
+    public async Task<ActionResult<IEnumerable<Produto>>> Get()
     {
-        var produtos = _context.Produtos.AsNoTracking().Take(10).ToList();
+        var produtos = await _context.Produtos.AsNoTracking().Take(10).ToListAsync();
 
         if (produtos is null)
         {
@@ -74,11 +74,11 @@ public class ProdutosController : ControllerBase
     }
 
     [HttpGet("{id:int:min(1)}/{nome=Caderno}", Name = "ObterProduto")]
-    public ActionResult<Produto> Get(int id, string nome)
+    public async Task<ActionResult<Produto>> Get(int id, string nome)
     {
         var parametro = nome;
 
-        var produto = _context.Produtos.AsNoTracking().FirstOrDefault(p => p.ProdutoId == id);
+        var produto = await _context.Produtos.AsNoTracking().FirstOrDefaultAsync(p => p.ProdutoId == id);
 
         if (produto is null)
         {
