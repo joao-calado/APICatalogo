@@ -30,6 +30,16 @@ public class ProdutosController : ControllerBase
         return produto;
     }
 
+    [HttpGet("{valor:alpha:length(5)}")]
+    public ActionResult<Produto> Get2(string valor)
+    {
+        var teste = valor;
+
+        var produto = _context.Produtos.AsNoTracking().FirstOrDefault();
+
+        return produto;
+    }
+
     [HttpGet]
     public ActionResult<IEnumerable<Produto>> Get()
     {
@@ -43,7 +53,7 @@ public class ProdutosController : ControllerBase
         return produtos;
     }
 
-    [HttpGet("{id}/{nome=Caderno}", Name = "ObterProduto")]
+    [HttpGet("{id:int:min(1)}/{nome=Caderno}", Name = "ObterProduto")]
     public ActionResult<Produto> Get(int id, string nome)
     {
         var parametro = nome;
