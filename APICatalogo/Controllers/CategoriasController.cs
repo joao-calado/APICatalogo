@@ -55,7 +55,7 @@ public class CategoriasController : ControllerBase
     {
         try
         {
-            throw new DataMisalignedException();
+            //throw new DataMisalignedException();
             return _context.Categorias.AsNoTracking().ToList();
         }
         catch (Exception)
@@ -65,7 +65,7 @@ public class CategoriasController : ControllerBase
         }
     }
 
-    [HttpGet("{id:int}", Name = "ObterCategoria")]
+    [HttpGet("{id:int}")]
     public ActionResult<Categoria> Get(int id) 
     {
         try
@@ -81,6 +81,20 @@ public class CategoriasController : ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError,
                 "Ocorreu um problema ao tratar a sua solicitação.");
         }
+    }
+
+    [HttpGet("{id:int:min(1)}/catNome=Adulto", Name = "ObterCategoria")]
+    public ActionResult<Categoria> GetComtratamentoExcecao(int id)
+    {
+        //throw new Exception("Exceção ao retornar a categoria pelo Id");
+        string[] teste = null;
+        if (teste.Length > 0) { }
+
+        var categoria = _context.Categorias.AsNoTracking().FirstOrDefault(c => c.CategoriaId == id);
+
+        if (categoria == null) return NotFound($"Categoria com id={id} não encontrada...");
+
+        return Ok(categoria);
     }
 
     [HttpPost]
