@@ -60,40 +60,25 @@ public class CategoriasController : ControllerBase
     public ActionResult<IEnumerable<Categoria>> Get()
     {
         _logger.LogInformation("=================GET api/categorias=================");
-        try
-        {
-            //throw new DataMisalignedException();
-            return _context.Categorias.AsNoTracking().ToList();
-        }
-        catch (Exception)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError,
-                "Ocorreu um problema ao tratar a sua solicitação.");
-        }
+       
+        //throw new DataMisalignedException();
+        return _context.Categorias.AsNoTracking().ToList();
     }
 
     [HttpGet("{id:int}")]
     public ActionResult<Categoria> Get(int id) 
     {
-        try
+        var categoria = _context.Categorias.AsNoTracking().FirstOrDefault(c => c.CategoriaId == id);
+
+        _logger.LogInformation($"=================GET api/categorias/id = {id}=================");
+
+        if (categoria == null)
         {
-            var categoria = _context.Categorias.AsNoTracking().FirstOrDefault(c => c.CategoriaId == id);
-
-            _logger.LogInformation($"=================GET api/categorias/id = {id}=================");
-
-            if (categoria == null)
-            {
-                _logger.LogInformation($"=================GET api/categorias/id = {id} NOT FOUND=================");
-                return NotFound($"Categoria com id={id} não encontrada...");
-            }
-
-            return Ok(categoria);
+            _logger.LogInformation($"=================GET api/categorias/id = {id} NOT FOUND=================");
+            return NotFound($"Categoria com id={id} não encontrada...");
         }
-        catch (Exception)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError,
-                "Ocorreu um problema ao tratar a sua solicitação.");
-        }
+
+        return Ok(categoria);
     }
 
     [HttpGet("{id:int:min(1)}/catNome=Adulto", Name = "ObterCategoria")]
