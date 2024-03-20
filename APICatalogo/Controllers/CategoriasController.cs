@@ -13,8 +13,8 @@ namespace APICatalogo.Controllers;
 public class CategoriasController : ControllerBase
 {
     private readonly AppDbContext _context;
-    private readonly IConfiguration _configurantion;
     private readonly ILogger _logger;
+    private readonly IConfiguration _configurantion;
 
     public CategoriasController(AppDbContext context, IConfiguration configurantion, ILogger<CategoriasController> logger)
     {
@@ -23,49 +23,15 @@ public class CategoriasController : ControllerBase
         _logger = logger;
     }
 
-    [HttpGet("LerArquivoConfiguracao")]
-    public string GetValores()
-    {
-        var valor1 = _configurantion["chave1"];
-        var valor2 = _configurantion["chave2"];
-
-        var secao1 = _configurantion["secao1:chave2"];
-
-        return $"Chave1 = {valor1} \nChave2 = {valor2} \nSeção1 => Chave2 = {secao1}";
-    }
-
-    [HttpGet("UsandoFromServices/{nome}")]
-    public ActionResult<string> GetSaudacaoFromServices([FromServices] IMeuServico meuServico, string nome)
-    {
-        return meuServico.Saudacao(nome);
-    }
-
-    [HttpGet("SemUsarFromServices/{nome}")]
-    public ActionResult<string> GetSaudacaoSemFromServices(IMeuServico meuServico, string nome)
-    {
-        return meuServico.Saudacao(nome);
-    }
-
-    [HttpGet("produtos")]
-    public ActionResult<IEnumerable<Categoria>> GetCategoriasProdutos()
-    {
-        _logger.LogInformation("=================GET api/categorias/produtos=================");
-
-        //return _context.Categorias.Include(p => p.Produtos).AsNoTracking().ToList();
-        return _context.Categorias.Include(p => p.Produtos).Where(c => c.CategoriaId <= 5).AsNoTracking().ToList();
-    }
-
     [HttpGet]
     [ServiceFilter(typeof(ApiLoggingFilter))] 
-    public ActionResult<IEnumerable<Categoria>> Get()
+    public async Task<ActionResult<IEnumerable<Categoria>>> Get()
     {
         _logger.LogInformation("=================GET api/categorias=================");
-       
-        //throw new DataMisalignedException();
-        return _context.Categorias.AsNoTracking().ToList();
+        return await _context.Categorias.AsNoTracking().ToListAsync();
     }
 
-    [HttpGet("{id:int}")]
+    [HttpGet("{id:int:min(1)}")]
     public ActionResult<Categoria> Get(int id) 
     {
         var categoria = _context.Categorias.AsNoTracking().FirstOrDefault(c => c.CategoriaId == id);
@@ -77,20 +43,6 @@ public class CategoriasController : ControllerBase
             _logger.LogInformation($"=================GET api/categorias/id = {id} NOT FOUND=================");
             return NotFound($"Categoria com id={id} não encontrada...");
         }
-
-        return Ok(categoria);
-    }
-
-    [HttpGet("{id:int:min(1)}/catNome=Adulto", Name = "ObterCategoria")]
-    public ActionResult<Categoria> GetComtratamentoExcecao(int id)
-    {
-        //throw new Exception("Exceção ao retornar a categoria pelo Id");
-        string[] teste = null;
-        if (teste.Length > 0) { }
-
-        var categoria = _context.Categorias.AsNoTracking().FirstOrDefault(c => c.CategoriaId == id);
-
-        if (categoria == null) return NotFound($"Categoria com id={id} não encontrada...");
 
         return Ok(categoria);
     }
@@ -128,4 +80,33 @@ public class CategoriasController : ControllerBase
         return Ok(categoria);
     }
 
+    #region Alguns testes
+
+    [HttpGet("LerArquivoConfiguracao")]
+    public string GetValores()
+    {
+        var valor1 = _configurantion["chave1"];
+        var valor2 = _configurantion["chave2"];
+
+        var secao1 = _configurantion["secao1:chave2"];
+
+        return $"Chave1 = {valor1} \nChave2 = {valor2} \nSeção1 => Chave2 = {secao1}";
+    }
+
+    [HttpGet("SemUsarFromServices/{nome}")]
+    public ActionResult<string> GetSaudacaoSemFromServices(IMeuServico meuServico, string nome)
+    {
+        return meuServico.Saudacao(nome);
+    }
+
+    [HttpGet("produtos")]
+    public ActionResult<IEnumerable<Categoria>> GetCategoriasProdutos()
+    {
+        _logger.LogInformation("=================GET api/categorias/produtos=================");
+
+        //return _context.Categorias.Include(p => p.Produtos).AsNoTracking().ToList();
+        return _context.Categorias.Include(p => p.Produtos).Where(c => c.CategoriaId <= 5).AsNoTracking().ToList();
+    }
+
+    #endregion Alguns testes
 }

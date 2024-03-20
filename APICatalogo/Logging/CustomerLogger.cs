@@ -11,6 +11,7 @@ namespace APICatalogo.Logging
             _loggerName = loggerName;
             _loggerConfig = loggerConfig;
         }
+
         public bool IsEnabled(LogLevel logLevel)
         {
             return logLevel == _loggerConfig.LogLevel;
