@@ -32,6 +32,7 @@ var valor2 = builder.Configuration["secao1:chave2"];
 builder.Services.AddDbContext<AppDbContext>(options =>
                         options.UseMySql(mySqlConnection, 
                         ServerVersion.AutoDetect(mySqlConnection)));
+
 builder.Services.AddTransient<IMeuServico, MeuServico>();
 
 builder.Services.AddScoped<ApiLoggingFilter>();
