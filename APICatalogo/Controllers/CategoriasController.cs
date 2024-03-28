@@ -13,11 +13,14 @@ namespace APICatalogo.Controllers;
 [ApiController]
 public class CategoriasController : ControllerBase
 {
-    private readonly ICategoriaRepository _repository;
+    private readonly IRepository<Categoria> _repository;
     private readonly ILogger _logger;
     private readonly IConfiguration _configurantion;
 
-    public CategoriasController(ICategoriaRepository repository, IConfiguration configurantion, ILogger<CategoriasController> logger)
+    public CategoriasController(
+        IRepository<Categoria> repository, 
+        IConfiguration configurantion, 
+        ILogger<CategoriasController> logger)
     {
         _repository = repository;
         _logger = logger;
@@ -28,14 +31,14 @@ public class CategoriasController : ControllerBase
     public ActionResult<IEnumerable<Categoria>> Get()
     {
         //_logger.LogInformation("=================GET api/categorias=================");
-        var categorias = _repository.GetCategorias();
+        var categorias = _repository.GetAll();
         return Ok(categorias);
     }
 
     [HttpGet("{id:int:min(1)}", Name = "ObterCategoria")]
     public ActionResult<Categoria> Get(int id) 
     {
-        var categoria = _repository.GetCategoria(id);
+        var categoria = _repository.Get(c => c.CategoriaId == id);
 
         if (categoria is null)
         {
@@ -76,11 +79,11 @@ public class CategoriasController : ControllerBase
     [HttpDelete("{id:int}")]
     public ActionResult<Categoria> Delete(int id) 
     {
-        var categoria = _repository.GetCategoria(id);
+        var categoria = _repository.Get(c => c.CategoriaId == id);
 
         if (categoria is null) return NotFound($"Categoria com id={id} não encontrada...");
 
-        var categoriaExcluida = _repository.Delete(id);
+        var categoriaExcluida = _repository.Delete(categoria);
         return Ok(categoriaExcluida);
     }
 
@@ -107,7 +110,7 @@ public class CategoriasController : ControllerBase
     public ActionResult<IEnumerable<Categoria>> GetCategoriasProdutos()
     {
         throw new NotImplementedException();
-        _logger.LogInformation("=================GET api/categorias/produtos=================");
+        //_logger.LogInformation("=================GET api/categorias/produtos=================");
 
         //return _context.Categorias.Include(p => p.Produtos).AsNoTracking().ToList();
         //return _context.Categorias.Include(p => p.Produtos).Where(c => c.CategoriaId <= 5).AsNoTracking().ToList();
