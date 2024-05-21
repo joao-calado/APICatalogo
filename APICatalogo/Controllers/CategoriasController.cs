@@ -11,8 +11,8 @@ using X.PagedList;
 
 namespace APICatalogo.Controllers;
 
-[Route("[controller]")]
 [ApiController]
+[Route("[controller]")]
 public class CategoriasController : ControllerBase
 {
     private readonly IUnitOfWork _uof;
