@@ -41,7 +41,7 @@ public class ProdutosController : ControllerBase
 
         return Ok(produtosDto);
     }
-
+    
     [HttpGet("pagination")]
     public async Task<ActionResult<IEnumerable<ProdutoDTO>>> Get([FromQuery] ProdutosParameters produtosParameters)
     {
@@ -56,8 +56,8 @@ public class ProdutosController : ControllerBase
         return ObterProdutos(produtos);
     }
 
+    [Authorize(Policy = "UserOnly")]
     [HttpGet]
-    [Authorize]
     public async Task<ActionResult<IEnumerable<ProdutoDTO>>> Get()
     {
         var produtos = await _uof.ProdutoRepository.GetAllAsync();
