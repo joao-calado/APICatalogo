@@ -36,7 +36,10 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: OrigensComAcessoPermitido,
                       policy =>
                       {
-                            policy.WithOrigins("http://apirequest.io");
+                            policy.WithOrigins("https://apirequest.io",
+                                               "https://macoratti.net")
+                                  .WithMethods("GET", "POST")
+                                  .AllowAnyHeader();
                       });
 });
 
