@@ -72,7 +72,7 @@ public class ProdutosController : ControllerBase
 
     //[HttpGet("{id:int:min(1)}/{nome=Caderno}", Name = "ObterProduto")]
     [HttpGet("{id}", Name = "ObterProduto")]
-    public async Task<ActionResult<ProdutoDTO>> Get(int id, [BindRequired] string nome)
+    public async Task<ActionResult<ProdutoDTO>> Get(int id)
     {
         var produto = await _uof.ProdutoRepository.GetAsync(p => p.ProdutoId == id);
 
