@@ -8,6 +8,7 @@ using APICatalogo.Repositories;
 using APICatalogo.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -131,6 +132,17 @@ builder.Services.AddAuthorization(options =>
                                                                                      || context.User.IsInRole("SuperAdmin"))));
 });
 
+builder.Services.AddRateLimiter(rateLimitOptions =>
+{
+    rateLimitOptions.AddFixedWindowLimiter(policyName: "fixedwindow", options =>
+    {
+        options.PermitLimit = 1;
+        options.Window = TimeSpan.FromSeconds(5);
+        options.QueueLimit = 0;
+    });
+    rateLimitOptions.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
+
 builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
 builder.Services.AddScoped<IProdutoRepository, ProdutoRepository>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
@@ -157,6 +169,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+
+app.UseRateLimiter();
 
 app.UseCors(OrigensComAcessoPermitido);
 

@@ -6,6 +6,7 @@ using APICatalogo.Repositories;
 using APICatalogo.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Newtonsoft.Json;
 using X.PagedList;
 
@@ -13,6 +14,7 @@ namespace APICatalogo.Controllers;
 
 [ApiController]
 [Route("[controller]")]
+[EnableRateLimiting("fixedwindow")]
 public class CategoriasController : ControllerBase
 {
     private readonly IUnitOfWork _uof;
@@ -27,7 +29,8 @@ public class CategoriasController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize]
+    //[Authorize]
+    [DisableRateLimiting]
     public async Task<ActionResult<IEnumerable<CategoriaDTO>>> Get()
     {
         var categorias = await _uof.CategoriaRepository.GetAllAsync();
