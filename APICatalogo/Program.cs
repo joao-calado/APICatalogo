@@ -4,6 +4,7 @@ using APICatalogo.Extensions;
 using APICatalogo.Filters;
 using APICatalogo.Logging;
 using APICatalogo.Models;
+using APICatalogo.RateLimitOptions;
 using APICatalogo.Repositories;
 using APICatalogo.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -17,6 +18,7 @@ using System.Diagnostics.Metrics;
 using System.Reflection.Metadata;
 using System.Text;
 using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
 using static System.Net.Mime.MediaTypeNames;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -132,15 +134,37 @@ builder.Services.AddAuthorization(options =>
                                                                                      || context.User.IsInRole("SuperAdmin"))));
 });
 
+var myOptions = new MyRateLimitOptions();
+
+builder.Configuration.GetSection(MyRateLimitOptions.MyRateLimit).Bind(myOptions);
+
 builder.Services.AddRateLimiter(rateLimitOptions =>
 {
     rateLimitOptions.AddFixedWindowLimiter(policyName: "fixedwindow", options =>
     {
-        options.PermitLimit = 1;
-        options.Window = TimeSpan.FromSeconds(5);
-        options.QueueLimit = 0;
+        options.PermitLimit = myOptions.PermitLimit;
+        options.Window = TimeSpan.FromSeconds(myOptions.Window); // Uma requisição à cada 5 segundos
+        options.QueueLimit = myOptions.QueueLimit;
+        options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
     });
     rateLimitOptions.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpcontext =>
+                            RateLimitPartition.GetFixedWindowLimiter(
+                                               partitionKey: httpcontext.User.Identity?.Name ??
+                                                             httpcontext.Request.Headers.Host.ToString(),
+                            factory: partition => new FixedWindowRateLimiterOptions
+                            {
+                                AutoReplenishment = true,
+                                PermitLimit = 5,
+                                QueueLimit = 0,
+                                Window = TimeSpan.FromSeconds(10)
+                            }));
 });
 
 builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
